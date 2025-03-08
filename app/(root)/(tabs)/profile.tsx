@@ -30,15 +30,33 @@ const Profile = () => {
   const { user, refetch } = useGlobalContext();
 
   const handleLogout = async () => {
-    const result = await logout();
-
-    if (result) {
-      Alert.alert("Success", "You have been logged out successfully");
-      refetch();
-    } else {
-      Alert.alert("Error", "An error occurred while logging out");
-    }
+    Alert.alert(
+      "Confirm Logout",
+      "Are you sure you want to log out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const result = await logout();
+  
+              if (result) {
+                Alert.alert("Success", "You have been logged out successfully");
+                refetch();
+              } else {
+                Alert.alert("Error", "An error occurred while logging out");
+              }
+            } catch (error) {
+              Alert.alert("Error", "Failed to log out. Please try again.");
+            }
+          },
+        },
+      ]
+    );
   };
+  
 
   return (
     <SafeAreaView className='h-full bg-white'>

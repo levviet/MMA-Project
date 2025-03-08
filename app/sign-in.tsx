@@ -1,60 +1,150 @@
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import images from '@/constants/images'
-import icons from '@/constants/icons'
-import image from '@/assets/images/vit-and-thao.png'
-import { login } from '@/lib/appwrite'
-import { useGlobalContext } from '@/lib/global-provider'
-import { Redirect } from 'expo-router'
+import { 
+    View, Text, ScrollView, Image, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator 
+} from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import images from '@/constants/images';
+import { login } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const SignIn = () => {
-    const { refetch, loading, isLoggedIn } = useGlobalContext();
-
-    if (!loading && isLoggedIn) return <Redirect href={'/'} />;
+    const { refetch } = useGlobalContext();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
-        const result = await login();
+        if (!email || !password) {
+            Alert.alert("Error", "Please enter your email and password");
+            return;
+        }
+
+        setLoading(true);
+        const result = await login(email, password);
+        setLoading(false);
 
         if (result) {
             refetch();
         } else {
-            Alert.alert('Error', 'Failed to login Sign in');
+            Alert.alert("Error", "Invalid email or password. Please try again!");
         }
     };
 
-    const { width, height } = Dimensions.get('window');  //Xoá
-
     return (
-        <SafeAreaView className='bg-white h-full'>
-            <ScrollView contentContainerClassName='h-full'>
-                {/* <Image source={image} style={{width, height}} className='w-full h-4/6' resizeMode='cover' /> */}
-                <Image source={images.onboarding} style={{ width, height }} className='w-full h-4/6' resizeMode='cover' />
+        <SafeAreaView style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                {/* Background Image */}
+                <View style={styles.imageContainer}>
+                    <Image source={images.onboarding} style={styles.image} resizeMode='cover' />
+                    <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,1)']} style={styles.gradient} />
+                </View>
 
-                <View className='px-10'>
-                    <Text className='text-base text-center uppercase font-rubik text-black-200'>
-                        Welcome to Vịt
+                <View style={styles.content}>
+                    <Text style={styles.welcomeText}>Welcome to Vit</Text>
+
+                    <Text style={styles.title}>
+                        Sign in to continue
                     </Text>
 
-                    <Text className='text-3xl font-rubik-bold text-black-300 text-center mt-2'>
-                        Let's Get You Closer to {"\n"}
-                        <Text className='text-primary-300'>Your Ideal Home</Text>
-                    </Text>
+                    {/* Email Input */}
+                    <TextInput 
+                        style={styles.input} 
+                        placeholder="Enter your email" 
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
 
-                    <Text className='text-lg font-rubik text-black-200 text-center mt-12'>
-                        Login to Vịt with Google
-                    </Text>
+                    {/* Password Input */}
+                    <TextInput 
+                        style={styles.input} 
+                        placeholder="Enter your password" 
+                        secureTextEntry
+                        value={password}
+                        onChangeText={setPassword}
+                    />
 
-                    <TouchableOpacity onPress={handleLogin} className='bg-white shadow-md shadow-zinc-300 rounded-full w-full py-4 mt-5'>
-                        <View className='flex flex-row items-center justify-center'>
-                            <Image source={icons.google} className='w-5 h-5' resizeMode='contain' />
-                            <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue with Google</Text>
-                        </View>
+                    {/* Sign In Button */}
+                    <TouchableOpacity onPress={handleLogin} style={styles.loginButton} disabled={loading}>
+                        {loading ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>Sign In</Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default SignIn
+// Styles
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+    scrollContainer: {
+        flexGrow: 1,
+    },
+    imageContainer: {
+        width: '100%',
+        height: '50%',
+        position: 'relative',
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+    },
+    gradient: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        height: 120, 
+    },
+    content: {
+        paddingHorizontal: 20,
+        alignItems: 'center',
+    },
+    welcomeText: {
+        fontSize: 16,
+        fontFamily: 'Rubik-Regular',
+        color: '#A0A0A0',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    title: {
+        fontSize: 22,
+        fontFamily: 'Rubik-Bold',
+        color: '#333',
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    input: {
+        width: '100%',
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 10,
+        fontSize: 16,
+        marginTop: 15,
+    },
+    loginButton: {
+        backgroundColor: '#FF6F61',
+        borderRadius: 10,
+        width: '100%',
+        paddingVertical: 15,
+        marginTop: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        fontSize: 16,
+        fontFamily: 'Rubik-Medium',
+        color: '#fff',
+    },
+});
+
+export default SignIn;

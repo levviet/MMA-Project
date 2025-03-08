@@ -1,15 +1,6 @@
 import React, { createContext, useContext, ReactNode } from "react";
-
+import { useAppwrite } from "@/lib/useAppwrite";
 import { getCurrentUser } from "./appwrite";
-import { useAppwrite } from "./useAppwrite";
-import { Redirect } from "expo-router";
-
-interface GlobalContextType {
-  isLoggedIn: boolean;
-  user: User | null;
-  loading: boolean;
-  refetch: () => void;
-}
 
 interface User {
   $id: string;
@@ -18,34 +9,43 @@ interface User {
   avatar: string;
 }
 
-const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
-
-interface GlobalProviderProps {
-  children: ReactNode;
+interface GlobalContextType {
+  isLoggedIn: boolean;
+  user: User | null;
+  loading: boolean;
+  refetch: (newParams?: Record<string, string | number>) => Promise<void>;
 }
 
-export const GlobalProvider = ({ children }: GlobalProviderProps) => {
+const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
+
+export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const {
-    data: user,
+    data: rawUser,
     loading,
-    refetch,
+    refetch
   } = useAppwrite({
     fn: getCurrentUser,
   });
 
+  // Chuẩn hóa dữ liệu `user`, chỉ lấy các trường cần thiết
+  const user: User | null = rawUser
+    ? {
+        $id: rawUser.$id,
+        name: rawUser.name,
+        email: rawUser.email,
+        avatar: rawUser.avatar,
+      }
+    : null;
+
   const isLoggedIn = !!user;
-  // console.log(JSON.stringify(user, null, 2));
-  console.log(user);
+
+  // Đảm bảo `refetch` có thể nhận undefined
+  const safeRefetch = (newParams?: Record<string, string | number>) => {
+    return refetch(newParams ?? {}); // Tránh undefined bằng cách truyền giá trị mặc định
+  };
 
   return (
-    <GlobalContext.Provider
-      value={{
-        isLoggedIn,
-        user,
-        loading,
-        refetch: (newParams?: Record<string, string | number>) => Promise<void>
-      }}
-    >
+    <GlobalContext.Provider value={{ isLoggedIn, user, loading, refetch: safeRefetch }}>
       {children}
     </GlobalContext.Provider>
   );
@@ -53,8 +53,10 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
 
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
-  if (!context)
+
+  if (!context) {
     throw new Error("useGlobalContext must be used within a GlobalProvider");
+  }
 
   return context;
 };
