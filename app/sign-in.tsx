@@ -1,5 +1,5 @@
 import { 
-    View, Text, ScrollView, Image, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator 
+    View, Text, ScrollView, Image, TouchableOpacity, TextInput, StyleSheet, Alert, ActivityIndicator
 } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,12 +7,14 @@ import images from '@/constants/images';
 import { login } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from "expo-router";
 
 const SignIn = () => {
     const { refetch } = useGlobalContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -26,6 +28,7 @@ const SignIn = () => {
 
         if (result) {
             refetch();
+            router.push("/");
         } else {
             Alert.alert("Error", "Invalid email or password. Please try again!");
         }

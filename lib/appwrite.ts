@@ -16,8 +16,6 @@ export const account = new Account(client);
 // ✅ Hàm đăng nhập với kiểu dữ liệu rõ ràng
 export async function login(email: string, password: string): Promise<any> {
   try {
-    const redirectUri = Linking.createURL("/");
-
     const session = await account.createEmailPasswordSession(email, password);
     console.log("Đăng nhập thành công:", session);
     return session;
