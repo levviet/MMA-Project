@@ -28,7 +28,7 @@ export const FeaturedCard = ({ item: { image, rating, name, address, price }, on
 
                 <View className='flex flex-row items-center justify-between w-full'>
                     <Text className='text-xl font-rubik-extrabold text-white'>
-                        {price}
+                        ${price}
                     </Text>
                     <Image source={icons.heart} className='size-5' />
                 </View>
@@ -55,7 +55,7 @@ export const Card = ({ item: { image, rating, name, address, price }, onPress }:
 
                 <View className='flex flex-row items-center justify-between mt-2'>
                     <Text className='text-base font-rubik-bold text-primary-300'>
-                        {price}
+                        ${price}
                     </Text>
                     <Image source={icons.heart} className='w-5 h-5 mr-2' tintColor='#191d31' />
                 </View>
