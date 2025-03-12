@@ -1,4 +1,4 @@
-import { Client, Account, Avatars, Databases, Query } from "react-native-appwrite";
+import { Client, Account, Avatars, Databases, Query, ID } from "react-native-appwrite";
 import * as Linking from "expo-linking";
 
 export const config = {
@@ -136,12 +136,13 @@ export async function getPropertyById({ id }: { id: string }) {
 
 export async function register(email: string, password: string, name: string): Promise<any> {
   try {
-    // Create a new account in Appwrite
-    const user = await account.create("unique()", email, password, name);
+    // Tạo tài khoản mới
+    const user = await account.create(ID.unique(), email, password, name);
     console.log("Registration successful:", user);
 
-    // Auto-login after registration
-    await login(email, password);
+    // Gửi email xác thực sử dụng trang mặc định của Appwrite
+    await account.createVerification("https://cloud.appwrite.io/auth/verify");
+    console.log("Verification email sent to:", email);
 
     return user;
   } catch (error: unknown) {
