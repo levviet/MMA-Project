@@ -133,3 +133,22 @@ export async function getPropertyById({ id }: { id: string }) {
     return null;
   }
 }
+
+export async function register(email: string, password: string, name: string): Promise<any> {
+  try {
+    // Create a new account in Appwrite
+    const user = await account.create("unique()", email, password, name);
+    console.log("Registration successful:", user);
+
+    // Auto-login after registration
+    await login(email, password);
+
+    return user;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Registration error:", error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("An unknown error occurred during registration.");
+  }
+}

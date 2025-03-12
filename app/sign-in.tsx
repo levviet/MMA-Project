@@ -28,7 +28,7 @@ const SignIn = () => {
 
         if (result) {
             refetch();
-            router.push("/");
+            router.push("/"); // Redirect to home after login
         } else {
             Alert.alert("Error", "Invalid email or password. Please try again!");
         }
@@ -77,6 +77,15 @@ const SignIn = () => {
                             <Text style={styles.buttonText}>Sign In</Text>
                         )}
                     </TouchableOpacity>
+
+                    {/* Sign Up Redirect */}
+                    <View style={styles.signUpContainer}>
+                        <Text style={styles.signUpText}>Don't have an account?</Text>
+                        <TouchableOpacity onPress={() => router.push("/sign-up")}>
+                            <Text style={styles.signUpLink}>Sign Up</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -147,6 +156,21 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'Rubik-Medium',
         color: '#fff',
+    },
+    signUpContainer: {
+        flexDirection: 'row',
+        marginTop: 15,
+        alignItems: 'center',
+    },
+    signUpText: {
+        fontSize: 14,
+        color: '#A0A0A0',
+        marginRight: 5,
+    },
+    signUpLink: {
+        fontSize: 14,
+        fontFamily: 'Rubik-Medium',
+        color: '#FF6F61',
     },
 });
 
