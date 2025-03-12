@@ -100,6 +100,8 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1,
+        justifyContent: 'center', 
+        paddingBottom: 20, 
     },
     imageContainer: {
         width: '100%',
@@ -163,12 +165,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     signUpText: {
-        fontSize: 14,
+        fontSize: 15,
         color: '#A0A0A0',
         marginRight: 5,
     },
     signUpLink: {
-        fontSize: 14,
+        fontSize: 15,
         fontFamily: 'Rubik-Medium',
         color: '#FF6F61',
     },
