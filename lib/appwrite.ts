@@ -136,13 +136,19 @@ export async function getPropertyById({ id }: { id: string }) {
 
 export async function register(email: string, password: string, name: string): Promise<any> {
   try {
-    // Tạo tài khoản mới
-    const user = await account.create(ID.unique(), email, password, name);
+    // Đăng ký tài khoản mới
+    const user = await account.create("unique()", email, password, name);
     console.log("Registration successful:", user);
 
-    // Gửi email xác thực sử dụng trang mặc định của Appwrite
-    await account.createVerification("https://cloud.appwrite.io/auth/verify");
-    console.log("Verification email sent to:", email);
+    // Tạo session ngay sau khi đăng ký
+    const session = await account.createSession(email, password);
+    console.log("Session created successfully:", session);
+
+    // Gửi email xác thực
+    const verificationResponse = await account.createVerification(
+      process.env.EXPO_PUBLIC_APPWRITE_VERIFICATION_URL as string
+    );
+    console.log("Verification email sent:", verificationResponse);
 
     return user;
   } catch (error: unknown) {
