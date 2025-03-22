@@ -1,14 +1,25 @@
-import { Client, Account, Avatars, Databases, Query, ID } from "react-native-appwrite";
+import {
+  Client,
+  Account,
+  Avatars,
+  Databases,
+  Query,
+  ID,
+} from "react-native-appwrite";
 import * as Linking from "expo-linking";
 
 export const config = {
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT as string,
   projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID as string,
   databaseId: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID as string,
-  galleriesCollectionId: process.env.EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID as string,
-  reviewsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID as string,
-  agentsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID as string,
-  propertiesCollectionId: process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID as string
+  galleriesCollectionId: process.env
+    .EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID as string,
+  reviewsCollectionId: process.env
+    .EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID as string,
+  agentsCollectionId: process.env
+    .EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID as string,
+  propertiesCollectionId: process.env
+    .EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID as string,
 };
 
 export const client = new Client()
@@ -81,26 +92,30 @@ export async function getLatestProperties() {
 }
 
 //Hàm lấy Property
-export async function getProperties({ filter, query, limit }: {
+export async function getProperties({
+  filter,
+  query,
+  limit,
+}: {
   filter: string;
   query: string;
   limit?: number;
 }) {
   try {
-    const buildQuery = [Query.orderDesc('$createdAt')];
+    const buildQuery = [Query.orderDesc("$createdAt")];
 
-    if (filter && filter !== 'All') {
-      buildQuery.push(Query.equal('type', filter));
+    if (filter && filter !== "All") {
+      buildQuery.push(Query.equal("type", filter));
     }
 
     if (query) {
       buildQuery.push(
         Query.or([
-          Query.search('name', query),
-          Query.search('address', query),
-          Query.search('type', query),
+          Query.search("name", query),
+          Query.search("address", query),
+          Query.search("type", query),
         ])
-      )
+      );
     }
 
     if (limit) {
@@ -110,7 +125,7 @@ export async function getProperties({ filter, query, limit }: {
     const result = await databases.listDocuments(
       config.databaseId!,
       config.propertiesCollectionId!,
-      buildQuery,
+      buildQuery
     );
 
     return result.documents;
@@ -125,8 +140,8 @@ export async function getPropertyById({ id }: { id: string }) {
     const result = await databases.getDocument(
       config.databaseId!,
       config.propertiesCollectionId!,
-      id,
-    )
+      id
+    );
     return result;
   } catch (error) {
     console.error(error);
@@ -134,28 +149,24 @@ export async function getPropertyById({ id }: { id: string }) {
   }
 }
 
-export async function register(email: string, password: string, name: string): Promise<any> {
+export async function register(email: string, password: string, name: string) {
   try {
-    // Đăng ký tài khoản mới
-    const user = await account.create("unique()", email, password, name);
-    console.log("Registration successful:", user);
+    // Tạo user trong Appwrite
+    const userId = crypto.randomUUID(); // Tạo UUID hợp lệ
+    const user = await account.create(userId, email, password, name);
+    console.log("User created:", user);
 
-    // Tạo session ngay sau khi đăng ký
-    const session = await account.createSession(email, password);
-    console.log("Session created successfully:", session);
+    await account.createSession(email, password);
 
     // Gửi email xác thực
-    const verificationResponse = await account.createVerification(
-      process.env.EXPO_PUBLIC_APPWRITE_VERIFICATION_URL as string
-    );
-    console.log("Verification email sent:", verificationResponse);
+    const verificationUrl = process.env
+      .EXPO_PUBLIC_APPWRITE_VERIFICATION_URL as string;
+    await account.createVerification("http://localhost:8081/");
+    console.log("Verification email has been sent");
 
     return user;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Registration error:", error.message);
-      throw new Error(error.message);
-    }
-    throw new Error("An unknown error occurred during registration.");
+  } catch (error) {
+    console.error("Error during registration:", error);
+    throw error; //
   }
 }
