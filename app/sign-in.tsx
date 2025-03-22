@@ -23,15 +23,37 @@ const SignIn = () => {
         }
 
         setLoading(true);
-        const result = await login(email, password);
-        setLoading(false);
+        try {
+            const result = await login(email, password);
+            setLoading(false);
 
-        if (result) {
-            refetch();
-            router.push("/"); // Redirect to home after login
-        } else {
-            Alert.alert("Error", "Invalid email or password. Please try again!");
+            if (result) {
+                refetch();
+                router.push("/"); // Chuyển hướng sau khi đăng nhập thành công
+            } else {
+                showRetryAlert();
+            }
+        } catch (error) {
+            setLoading(false);
+            showRetryAlert();
         }
+    };
+
+    const showRetryAlert = () => {
+        Alert.alert(
+            "Login Failed",
+            "Invalid email or password. Would you like to try again?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Retry",
+                    style: "cancel",
+                },
+            ]
+        );
     };
 
     return (
